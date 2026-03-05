@@ -12,27 +12,57 @@
 
 <div class="container py-5">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Panel de Reportes</h2>
-        <span class="badge bg-primary fs-6" id="contador">0 Reportes</span>
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Panel de Reportes</h2>
+    <span class="badge bg-primary fs-6" id="contador">0 Reportes</span>
+  </div>
 
-    <div class="card glass-card p-4 shadow-lg">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Ubicación</th>
-                        <th>Nombre</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaReportes"></tbody>
-            </table>
-        </div>
+  <!-- 📊 DASHBOARD -->
+  <div class="row mb-4 text-center">
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>Pendientes</h6>
+        <h3 id="statPendiente">0</h3>
+      </div>
     </div>
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>En revisión</h6>
+        <h3 id="statRevision">0</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>Resueltos</h6>
+        <h3 id="statResuelto">0</h3>
+      </div>
+    </div>
+  </div>
+
+  <button id="eliminarSeleccionados" class="btn btn-danger mb-3">
+    Eliminar seleccionados
+  </button>
+
+  <div class="card glass-card p-4 shadow-lg">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>
+              <input type="checkbox" id="selectAll">
+            </th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Ubicación</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaReportes"></tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 
