@@ -14,7 +14,14 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🧩 Pega AQUÍ tu configuración de Firebase EXACTA
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+
+// 🔐 CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
   authDomain: "car-san-miguel.firebaseapp.com",
@@ -27,11 +34,22 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
+
+// 🔒 PROTEGER admin.html
+if (window.location.pathname.includes("admin.html")) {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+}
+
+
+// 📩 FORMULARIO PÚBLICO (index.html)
 const form = document.getElementById("reportForm");
-const tabla = document.getElementById("tablaReportes");
 
-// 📩 FORMULARIO (index.html)
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -55,8 +73,10 @@ if (form) {
         estado: "Pendiente",
         fecha: serverTimestamp()
       });
+
       document.getElementById("mensaje").textContent =
         "Gracias. Su reporte fue enviado correctamente.";
+
       form.reset();
     } catch (err) {
       console.error(err);
@@ -65,16 +85,30 @@ if (form) {
   });
 }
 
+
+
 // 🛠 PANEL ADMIN
+const tabla = document.getElementById("tablaReportes");
+
 if (tabla) {
 
   const contador = document.getElementById("contador");
   const selectAll = document.getElementById("selectAll");
   const btnEliminarSeleccionados = document.getElementById("eliminarSeleccionados");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // 🔓 Botón cerrar sesión
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+  }
 
   const q = query(collection(db, "reportes"), orderBy("fecha", "desc"));
 
   onSnapshot(q, (snapshot) => {
+
     tabla.innerHTML = "";
 
     let pendientes = 0;
@@ -82,6 +116,7 @@ if (tabla) {
     let resueltos = 0;
 
     snapshot.forEach((docSnap) => {
+
       const data = docSnap.data();
       const id = docSnap.id;
 
@@ -103,7 +138,9 @@ if (tabla) {
               <option ${data.estado === "Resuelto" ? "selected" : ""}>Resuelto</option>
             </select>
           </td>
-          <td><button class="btn btn-sm btn-danger eliminarBtn" data-id="${id}">🗑</button></td>
+          <td>
+            <button class="btn btn-sm btn-danger eliminarBtn" data-id="${id}">🗑</button>
+          </td>
         </tr>
       `;
     });
@@ -116,14 +153,17 @@ if (tabla) {
     activarEventos();
   });
 
+
   function activarEventos() {
 
+    // 🗑 Eliminar individual
     document.querySelectorAll(".eliminarBtn").forEach(btn => {
       btn.addEventListener("click", async () => {
         await deleteDoc(doc(db, "reportes", btn.dataset.id));
       });
     });
 
+    // 🔄 Cambiar estado
     document.querySelectorAll(".estadoSelect").forEach(select => {
       select.addEventListener("change", async () => {
         await updateDoc(doc(db, "reportes", select.dataset.id), {
@@ -132,6 +172,7 @@ if (tabla) {
       });
     });
 
+    // ✅ Seleccionar todos
     if (selectAll) {
       selectAll.addEventListener("change", () => {
         document.querySelectorAll(".selectItem").forEach(cb => {
@@ -140,9 +181,11 @@ if (tabla) {
       });
     }
 
+    // 🗑 Eliminar seleccionados
     if (btnEliminarSeleccionados) {
       btnEliminarSeleccionados.addEventListener("click", async () => {
         const seleccionados = document.querySelectorAll(".selectItem:checked");
+
         for (let cb of seleccionados) {
           await deleteDoc(doc(db, "reportes", cb.value));
         }
