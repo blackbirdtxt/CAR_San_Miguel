@@ -1,39 +1,54 @@
-const form = document.getElementById('reportForm');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// PEGA TU CONFIG AQUÍ
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById("reportForm");
+const tabla = document.getElementById("tablaReportes");
 
 if (form) {
-    form.addEventListener('submit', function(e) {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const tipo = document.getElementById('tipo').value;
-        const descripcion = document.getElementById('descripcion').value;
-        const ubicacion = document.getElementById('ubicacion').value;
-        const nombre = document.getElementById('nombre').value;
+        await addDoc(collection(db, "reportes"), {
+            tipo: tipo.value,
+            descripcion: descripcion.value,
+            ubicacion: ubicacion.value,
+            nombre: nombre.value,
+            fecha: serverTimestamp()
+        });
 
-        const reporte = { tipo, descripcion, ubicacion, nombre };
-
-        let reportes = JSON.parse(localStorage.getItem('reportes')) || [];
-        reportes.push(reporte);
-        localStorage.setItem('reportes', JSON.stringify(reportes));
-
-        document.getElementById('mensaje').textContent = "Gracias. Su reporte fue enviado correctamente.";
+        document.getElementById("mensaje").textContent = "Gracias. Su reporte fue enviado correctamente.";
         form.reset();
     });
 }
 
-function cargarReportes() {
-    const tabla = document.getElementById('tablaReportes');
-    let reportes = JSON.parse(localStorage.getItem('reportes')) || [];
+if (tabla) {
+    const q = query(collection(db, "reportes"), orderBy("fecha", "desc"));
 
-    tabla.innerHTML = "";
+    onSnapshot(q, (snapshot) => {
+        tabla.innerHTML = "";
+        document.getElementById("contador").textContent = snapshot.size + " Reportes";
 
-    reportes.forEach(rep => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-            <td>${rep.tipo}</td>
-            <td>${rep.descripcion}</td>
-            <td>${rep.ubicacion || "-"}</td>
-            <td>${rep.nombre || "Anónimo"}</td>
-        `;
-        tabla.appendChild(fila);
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            tabla.innerHTML += `
+                <tr>
+                    <td><span class="badge bg-primary">${data.tipo}</span></td>
+                    <td>${data.descripcion}</td>
+                    <td>${data.ubicacion || "-"}</td>
+                    <td>${data.nombre || "Anónimo"}</td>
+                    <td>${data.fecha ? new Date(data.fecha.seconds * 1000).toLocaleString() : ""}</td>
+                </tr>
+            `;
+        });
     });
 }
