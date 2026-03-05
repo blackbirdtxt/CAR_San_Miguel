@@ -1,5 +1,5 @@
 import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import { 
   getFirestore, 
@@ -14,7 +14,7 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 CONFIG FIREBASE
+// 🧩 Pega AQUÍ tu configuración de Firebase EXACTA
 const firebaseConfig = {
   apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
   authDomain: "car-san-miguel.firebaseapp.com",
@@ -31,37 +31,41 @@ const db = getFirestore(app);
 const form = document.getElementById("reportForm");
 const tabla = document.getElementById("tablaReportes");
 
-// ==========================
 // 📩 FORMULARIO (index.html)
-// ==========================
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const tipo = document.getElementById("tipo").value;
-    const descripcion = document.getElementById("descripcion").value;
-    const ubicacion = document.getElementById("ubicacion").value;
-    const nombre = document.getElementById("nombre").value;
+    const tipo = document.getElementById("tipo").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
+    const ubicacion = document.getElementById("ubicacion").value.trim();
+    const nombre = document.getElementById("nombre").value.trim();
 
-    await addDoc(collection(db, "reportes"), {
-      tipo,
-      descripcion,
-      ubicacion,
-      nombre,
-      estado: "Pendiente",
-      fecha: serverTimestamp()
-    });
+    if (!tipo || !descripcion) {
+      alert("Por favor complete los campos Tipo y Descripción.");
+      return;
+    }
 
-    document.getElementById("mensaje").textContent =
-      "Gracias. Su reporte fue enviado correctamente.";
-
-    form.reset();
+    try {
+      await addDoc(collection(db, "reportes"), {
+        tipo,
+        descripcion,
+        ubicacion,
+        nombre,
+        estado: "Pendiente",
+        fecha: serverTimestamp()
+      });
+      document.getElementById("mensaje").textContent =
+        "Gracias. Su reporte fue enviado correctamente.";
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un error enviando tu reporte.");
+    }
   });
 }
 
-// ==========================
 // 🛠 PANEL ADMIN
-// ==========================
 if (tabla) {
 
   const contador = document.getElementById("contador");
@@ -87,9 +91,7 @@ if (tabla) {
 
       tabla.innerHTML += `
         <tr>
-          <td>
-            <input type="checkbox" class="selectItem" value="${id}">
-          </td>
+          <td><input type="checkbox" class="selectItem" value="${id}"></td>
           <td><span class="badge bg-primary">${data.tipo}</span></td>
           <td>${data.descripcion}</td>
           <td>${data.ubicacion || "-"}</td>
@@ -101,17 +103,12 @@ if (tabla) {
               <option ${data.estado === "Resuelto" ? "selected" : ""}>Resuelto</option>
             </select>
           </td>
-          <td>
-            <button class="btn btn-sm btn-danger eliminarBtn" data-id="${id}">
-              🗑
-            </button>
-          </td>
+          <td><button class="btn btn-sm btn-danger eliminarBtn" data-id="${id}">🗑</button></td>
         </tr>
       `;
     });
 
     contador.textContent = snapshot.size + " Reportes";
-
     document.getElementById("statPendiente").textContent = pendientes;
     document.getElementById("statRevision").textContent = revision;
     document.getElementById("statResuelto").textContent = resueltos;
@@ -121,14 +118,12 @@ if (tabla) {
 
   function activarEventos() {
 
-    // 🗑 Eliminar individual
     document.querySelectorAll(".eliminarBtn").forEach(btn => {
       btn.addEventListener("click", async () => {
         await deleteDoc(doc(db, "reportes", btn.dataset.id));
       });
     });
 
-    // 🔄 Cambiar estado
     document.querySelectorAll(".estadoSelect").forEach(select => {
       select.addEventListener("change", async () => {
         await updateDoc(doc(db, "reportes", select.dataset.id), {
@@ -137,7 +132,6 @@ if (tabla) {
       });
     });
 
-    // ☑ Select All
     if (selectAll) {
       selectAll.addEventListener("change", () => {
         document.querySelectorAll(".selectItem").forEach(cb => {
@@ -146,11 +140,9 @@ if (tabla) {
       });
     }
 
-    // 🧹 Eliminar seleccionados
     if (btnEliminarSeleccionados) {
       btnEliminarSeleccionados.addEventListener("click", async () => {
         const seleccionados = document.querySelectorAll(".selectItem:checked");
-
         for (let cb of seleccionados) {
           await deleteDoc(doc(db, "reportes", cb.value));
         }
