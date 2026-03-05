@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso Administrador</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+
+<div class="card p-4 shadow" style="width: 350px;">
+  <h4 class="mb-3 text-center">Acceso Administrador</h4>
+
+  <input type="email" id="email" class="form-control mb-2" placeholder="Correo">
+  <input type="password" id="password" class="form-control mb-3" placeholder="Contraseña">
+
+  <button id="loginBtn" class="btn btn-primary w-100">Ingresar</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "car-san-miguel.firebaseapp.com",
+  projectId: "car-san-miguel",
+  storageBucket: "car-san-miguel.firebasestorage.app",
+  messagingSenderId: "55038319521",
+  appId: "1:55038319521:web:11268ba8b3c034839649e0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.href = "admin.html";
+  } catch (error) {
+    alert("Correo o contraseña incorrectos.");
+  }
+});
+</script>
+
+</body>
+</html>
