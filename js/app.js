@@ -1,6 +1,5 @@
-import { 
-  initializeApp 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import { 
   getFirestore, 
@@ -14,9 +13,10 @@ import {
   doc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-// PEGA TU CONFIG AQUÍ
+
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
+  apiKey: "TU_API_KEY",
   authDomain: "car-san-miguel.firebaseapp.com",
   projectId: "car-san-miguel",
   storageBucket: "car-san-miguel.firebasestorage.app",
@@ -31,43 +31,130 @@ const db = getFirestore(app);
 const form = document.getElementById("reportForm");
 const tabla = document.getElementById("tablaReportes");
 
+// ==========================
+// 📩 FORMULARIO (index.html)
+// ==========================
 if (form) {
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        await addDoc(collection(db, "reportes"), {
-            await addDoc(collection(db, "reportes"), {
-              tipo,
-              descripcion,
-              ubicacion,
-              nombre,
-              estado: "Pendiente",
-              fecha: serverTimestamp()
-            });
+    const tipo = document.getElementById("tipo").value;
+    const descripcion = document.getElementById("descripcion").value;
+    const ubicacion = document.getElementById("ubicacion").value;
+    const nombre = document.getElementById("nombre").value;
 
-        document.getElementById("mensaje").textContent = "Gracias. Su reporte fue enviado correctamente.";
-        form.reset();
+    await addDoc(collection(db, "reportes"), {
+      tipo,
+      descripcion,
+      ubicacion,
+      nombre,
+      estado: "Pendiente",
+      fecha: serverTimestamp()
     });
+
+    document.getElementById("mensaje").textContent =
+      "Gracias. Su reporte fue enviado correctamente.";
+
+    form.reset();
+  });
 }
 
+// ==========================
+// 🛠 PANEL ADMIN
+// ==========================
 if (tabla) {
-    const q = query(collection(db, "reportes"), orderBy("fecha", "desc"));
 
-    onSnapshot(q, (snapshot) => {
-        tabla.innerHTML = "";
-        document.getElementById("contador").textContent = snapshot.size + " Reportes";
+  const contador = document.getElementById("contador");
+  const selectAll = document.getElementById("selectAll");
+  const btnEliminarSeleccionados = document.getElementById("eliminarSeleccionados");
 
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            tabla.innerHTML += `
-                <tr>
-                    <td><span class="badge bg-primary">${data.tipo}</span></td>
-                    <td>${data.descripcion}</td>
-                    <td>${data.ubicacion || "-"}</td>
-                    <td>${data.nombre || "Anónimo"}</td>
-                    <td>${data.fecha ? new Date(data.fecha.seconds * 1000).toLocaleString() : ""}</td>
-                </tr>
-            `;
-        });
+  const q = query(collection(db, "reportes"), orderBy("fecha", "desc"));
+
+  onSnapshot(q, (snapshot) => {
+    tabla.innerHTML = "";
+
+    let pendientes = 0;
+    let revision = 0;
+    let resueltos = 0;
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const id = docSnap.id;
+
+      if (data.estado === "Pendiente") pendientes++;
+      if (data.estado === "En revisión") revision++;
+      if (data.estado === "Resuelto") resueltos++;
+
+      tabla.innerHTML += `
+        <tr>
+          <td>
+            <input type="checkbox" class="selectItem" value="${id}">
+          </td>
+          <td><span class="badge bg-primary">${data.tipo}</span></td>
+          <td>${data.descripcion}</td>
+          <td>${data.ubicacion || "-"}</td>
+          <td>${data.nombre || "Anónimo"}</td>
+          <td>
+            <select class="form-select form-select-sm estadoSelect" data-id="${id}">
+              <option ${data.estado === "Pendiente" ? "selected" : ""}>Pendiente</option>
+              <option ${data.estado === "En revisión" ? "selected" : ""}>En revisión</option>
+              <option ${data.estado === "Resuelto" ? "selected" : ""}>Resuelto</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-danger eliminarBtn" data-id="${id}">
+              🗑
+            </button>
+          </td>
+        </tr>
+      `;
     });
+
+    contador.textContent = snapshot.size + " Reportes";
+
+    document.getElementById("statPendiente").textContent = pendientes;
+    document.getElementById("statRevision").textContent = revision;
+    document.getElementById("statResuelto").textContent = resueltos;
+
+    activarEventos();
+  });
+
+  function activarEventos() {
+
+    // 🗑 Eliminar individual
+    document.querySelectorAll(".eliminarBtn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        await deleteDoc(doc(db, "reportes", btn.dataset.id));
+      });
+    });
+
+    // 🔄 Cambiar estado
+    document.querySelectorAll(".estadoSelect").forEach(select => {
+      select.addEventListener("change", async () => {
+        await updateDoc(doc(db, "reportes", select.dataset.id), {
+          estado: select.value
+        });
+      });
+    });
+
+    // ☑ Select All
+    if (selectAll) {
+      selectAll.addEventListener("change", () => {
+        document.querySelectorAll(".selectItem").forEach(cb => {
+          cb.checked = selectAll.checked;
+        });
+      });
+    }
+
+    // 🧹 Eliminar seleccionados
+    if (btnEliminarSeleccionados) {
+      btnEliminarSeleccionados.addEventListener("click", async () => {
+        const seleccionados = document.querySelectorAll(".selectItem:checked");
+
+        for (let cb of seleccionados) {
+          await deleteDoc(doc(db, "reportes", cb.value));
+        }
+      });
+    }
+  }
 }
