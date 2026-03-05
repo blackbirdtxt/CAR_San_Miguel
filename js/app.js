@@ -23,12 +23,14 @@ if (form) {
         e.preventDefault();
 
         await addDoc(collection(db, "reportes"), {
-            tipo: tipo.value,
-            descripcion: descripcion.value,
-            ubicacion: ubicacion.value,
-            nombre: nombre.value,
-            fecha: serverTimestamp()
-        });
+            await addDoc(collection(db, "reportes"), {
+              tipo,
+              descripcion,
+              ubicacion,
+              nombre,
+              estado: "Pendiente",
+              fecha: serverTimestamp()
+            });
 
         document.getElementById("mensaje").textContent = "Gracias. Su reporte fue enviado correctamente.";
         form.reset();
