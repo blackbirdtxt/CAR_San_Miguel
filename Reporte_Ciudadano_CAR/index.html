@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Ciudadano - CAR</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Formulario de Reporte Ciudadano</h1>
+        <p>Escanee el código QR y complete este formulario para ayudarnos a mejorar.</p>
+    </header>
+
+    <div class="card">
+        <form id="reportForm">
+            <label>Tipo de Reporte</label>
+            <select id="tipo" required>
+                <option value="">Seleccione una opción</option>
+                <option value="Observación">Observación</option>
+                <option value="Sugerencia">Sugerencia</option>
+                <option value="Problema">Problema</option>
+            </select>
+
+            <label>Descripción</label>
+            <textarea id="descripcion" rows="4" placeholder="Explique su situación con claridad..." required></textarea>
+
+            <label>Ubicación (opcional)</label>
+            <input type="text" id="ubicacion" placeholder="Ej: Entrada principal, estacionamiento, etc.">
+
+            <label>Su nombre (opcional)</label>
+            <input type="text" id="nombre" placeholder="Puede dejarlo en blanco si desea">
+
+            <button type="submit">Enviar Reporte</button>
+        </form>
+        <p id="mensaje" class="mensaje"></p>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
