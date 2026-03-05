@@ -1,6 +1,19 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  initializeApp 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  serverTimestamp,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 // PEGA TU CONFIG AQUÍ
 const firebaseConfig = {
   apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
