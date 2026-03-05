@@ -16,7 +16,7 @@ import {
 
 // 🔥 CONFIG FIREBASE
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
   authDomain: "car-san-miguel.firebaseapp.com",
   projectId: "car-san-miguel",
   storageBucket: "car-san-miguel.firebasestorage.app",
