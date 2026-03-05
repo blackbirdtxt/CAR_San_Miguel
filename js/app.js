@@ -3,9 +3,13 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTim
 
 // PEGA TU CONFIG AQUÍ
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
+  apiKey: "AIzaSyDqTPSPy0l646ZJWLTCfPpa1YjvzTRVBRw",
+  authDomain: "car-san-miguel.firebaseapp.com",
+  projectId: "car-san-miguel",
+  storageBucket: "car-san-miguel.firebasestorage.app",
+  messagingSenderId: "55038319521",
+  appId: "1:55038319521:web:11268ba8b3c034839649e0",
+  measurementId: "G-3J70RY3YJH"
 };
 
 const app = initializeApp(firebaseConfig);
